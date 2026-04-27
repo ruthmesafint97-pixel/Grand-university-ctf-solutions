@@ -35,10 +35,8 @@ foreach ($ch in $text.ToCharArray()) {
         $result += $ch
     }
 }
-```
-
-
 Write-Host $result
+```
 ```
 unictf{r0t4t3_unt1l_1t_m4k3s_s3ns3}
 ```
