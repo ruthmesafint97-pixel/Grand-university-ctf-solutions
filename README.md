@@ -213,7 +213,7 @@ Flag: `unictf{r3v_m3_b4by_0n3_m0r3_t1m3}`
 
 
 #### 9. VMCheck (500 pts) - Hard
-![RE Solved](RE2.jpg)
+![RE Solved](RE2.JPG)
 
 **Given:** A file named `vmcheck.zip` containing a Linux executable called `vmcheck`
 
