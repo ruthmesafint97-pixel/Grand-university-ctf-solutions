@@ -258,3 +258,26 @@ for i in range(38):
 flag = ''.join(flag_chars)
 print(f"unictf{{{flag}}}")
 ```
+flag:`unictf{1nt3rpr3t3rs_4r3_4ls0_pr0gr4ms}`
+
+### 📌 Key Takeaways from Reverse Engineering Challenges
+
+#### 1. KeyGen (300 pts)
+- **Decompilers are your best friend**  Tools like Dogbolt, Ghidra, or IDA can turn binaries into readable C code.
+- **Look for hardcoded data** Arrays of bytes, strings, or constants are often the key to reversing.
+- **Reverse the math, don't just read it**  Once you understand the algorithm, work backwards from the expected output to the input.
+- **Small binaries are often simple** Don't overcomplicate. Start by checking length checks, then trace the validation loop.
+
+#### 2. VMCheck (500 pts)
+- **Custom VMs are common in hard challenges** But they're usually pretty simple under the hood (add, xor, rotate, compare).
+- **Emulation is one approach** but reversing the math is faster if the operations are linear.
+- **Look for patterns** f operations like rotate, xor, add, subtract repeat with just `i` changing, you can likely reverse each byte independently.
+- **Brute force would work too** With only 256 possible keys per byte, you could brute force each position. But reversing the math is cleaner and instant. and since it was a ctf challange i chose the fastest way i could use.
+- **The hardest challenges often have simple solutions**  VMCheck only had 4 operations to reverse. The difficulty was in spotting that.
+
+**Understand what it does before writing any script**
+- **Read the decompiled code first**  .
+- **Extract hardcoded data** 
+- **Reverse step by step** 
+- **Test with small inputs** 
+- **Speed matters in CTFs so use your fastest option**
