@@ -21,7 +21,19 @@
 
 **Given:** `havpgs{e0g4g3_hag1y_1g_z4x3f_f3af3}`
 
-**Solution:** ROT13 on letters, keep leet numbers
+**What I did:**
+
+1. I looked at the ciphertext and noticed it had the format `xxxxx{...}` which looked like a flag.
+
+2. The challenge name "C43SAR" looked like "CAESAR" with leet speak (4=A, 3=E), so I guessed it was a Caesar cipher.
+
+3. I tried ROT13 on the first word `havpgs` and got `unictf` — that matched the flag format for this CTF.
+
+4. So I applied ROT13 to all the letters in the ciphertext (A-Z becomes N-M, a-z becomes n-m).
+
+5. The numbers inside stayed the same because they were already in leet format (0,3,4,1).
+
+6. After decoding, I got `unictf{r0t4t3_unt1l_1t_m4k3s_s3ns3}`.
 
 **PowerShell:**
 ```powershell
@@ -47,7 +59,18 @@ unictf{r0t4t3_unt1l_1t_m4k3s_s3ns3}
 
 **Solution:** Base64 decoded 4 times
 
-**PowerShell:**
+**What I did:**
+
+1. The challenge name "64ESAB" looked like "BASE64" spelled backwards, so I knew it was a Base64 challenge.
+
+2. I tried decoding the given string once using Base64. It gave me another string that also looked like Base64.
+
+3. I kept decoding again and again — each time the output still looked like Base64.
+
+4. After decoding 4 times, I got a string that started with `unictf{` — that was the flag.
+
+5. I decoded one more time just to be sure, and got the final flag.
+
 ```powershell
 $text = "VjJ0YWFrMVhUa2RoTTNCV1lsUkdjMVJYZEhKa01XdDZZMFU1WVdGNlZuaFdWekZoVjIxV2MxTnFSbGhTUlRWUVZGVlZNVk5HVW5WVGJHeE9Za2QzZWxkVVNuZFVNREZ5VFVod1ZHRnRjems9"
 while ($true) {
