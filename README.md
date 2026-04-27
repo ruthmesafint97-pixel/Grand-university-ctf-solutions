@@ -70,3 +70,39 @@ so the flag is
 ```
 unictf{b4s3_64_c4n_st4ck_f0r3v3r}
 ```
+
+#### 3. One Byte (200 pts) - Single XOR
+
+**Given:** A file named `cipher.hex.txt` with this content: 
+```
+372c2b213624393a72301d3573362a1d722c711d203b36711d73311d357176293f
+```
+
+**What I did:**
+
+1. First, I looked at the file contents. It was a long string of hex characters, numbers and letters from 0-9 and a-f.
+
+2. I recognized this was likely a ciphertext encoded in hex, and since the challenge was called "One Byte", it probably meant the data was XORed with a single byte key.
+
+3. I converted the hex string to raw bytes so I could work with it.
+
+4. Then I brute forced all 256 possible single-byte keys (from 0 to 255). For each key, I XORed every byte and converted the result to text.
+
+5. I filtered the output to only show results that contained "unictf" (the flag format for this CTF).
+
+6. The correct result appeared with Key 66, giving me the flag.
+
+**PowerShell command I used:**
+```powershell
+$hex = "372c2b213624393a72301d3573362a1d722c711d203b36711d73311d357176293f"
+$bytes = [byte[]]::new($hex.Length / 2)
+for ($i = 0; $i -lt $hex.Length; $i += 2) {
+    $bytes[$i / 2] = [Convert]::ToByte($hex.Substring($i, 2), 16)
+}
+0..255 | ForEach-Object {
+    $key = $_
+    $result = -join ($bytes | ForEach-Object { [char]($_ -bxor $key) })
+    if ($result -match "unictf") { Write-Host "Key $key : $result" }
+}
+```
+Flag: `unictf{x0r_w1th_0n3_byt3_1s_w34k}`
