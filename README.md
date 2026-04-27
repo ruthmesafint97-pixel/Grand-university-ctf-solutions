@@ -113,7 +113,7 @@ unictf{b4s3_64_c4n_st4ck_f0r3v3r}
 
 6. The correct result appeared with Key 66, giving me the flag.
 
-**PowerShell command I used:**
+**PowerShell command i used**
 ```powershell
 $hex = "372c2b213624393a72301d3573362a1d722c711d203b36711d73311d357176293f"
 $bytes = [byte[]]::new($hex.Length / 2)
@@ -183,7 +183,19 @@ Flag: `unictf{x0r_w1th_0n3_byt3_1s_w34k}`
 
 7. **Wrote a script** — I wrote a PowerShell script to reverse it automatically
 
-**PowerShell script I used:**
+   **Python script I used:**
+```python
+expected = [209, 249, 9, 58, 57, 153, 185, 210, 35, 121, 120, 10, 67, 16, 177, 32, 233, 192, 56, 32, 104, 178, 24, 170, 186, 216, 154, 27, 248, 226, 72, 155, 144]
+opf = "OPF!"
+flag = ""
+for i in range(33):
+    v4 = ((expected[i] >> 3) | ((expected[i] & 7) << 5)) & 0xFF
+    flag += chr(v4 ^ (ord(opf[i % 4]) + i))
+print(f"unictf{{{flag}}}")
+```
+Flag: `unictf{r3v_m3_b4by_0n3_m0r3_t1m3}` 
+
+**PowerShell script to use instead of powershell:**
 ```powershell
 $expected = @(209,249,9,58,57,153,185,210,35,121,120,10,67,16,177,32,233,192,56,32,104,178,24,170,186,216,154,27,248,226,72,155,144)
 $opf = @(79,80,70,33)
@@ -198,3 +210,51 @@ for ($i = 0; $i -lt 33; $i++) {
 Write-Host "unictf{$flag}"
 ```
 Flag: `unictf{r3v_m3_b4by_0n3_m0r3_t1m3}` 
+
+
+#### 9. VMCheck (500 pts) - Hard
+![RE Solved](RE2.jpg)
+
+**Given:** A file named `vmcheck.zip` containing a Linux executable called `vmcheck`
+
+**What I did:**
+
+1. This was the hardest Reverse Engineering challenge — only 25 solves. Solving it fast is what helped me jump to 2nd place.
+
+2. I extracted the zip and got a file named `vmcheck`. When I tried to run it on Windows, it said "unsupported"  so it was a Linux executable.
+
+3. I uploaded the binary to **Dogbolt** (online decompiler) and looked at the Hex-Rays output.
+
+4. Looking at the decompiled code, I saw:
+   - The program runs a custom bytecode interpreter (a virtual machine)
+   - My input gets processed through this VM
+   - A hardcoded array of 38 bytes (`byte_100003F24`) was the expected output
+
+5. I extracted the expected bytes from the decompiled code:
+
+6.Instead of emulating the whole VM, I reversed the algorithm mathematically:
+-The VM rotated left by 3 bits → I rotated right by 3 bits
+-It XORed with i * 13 → I XORed with i * 13 again
+-It added i → I subtracted i
+-It XORed with 90 → I XORed with 90 again
+7. I wrote a Python script to reverse it:
+```
+expected = [121, 193, 121, 216, 48, 0, 75, 73, 162, 18, 143, 229, 85, 228, 14, 247, 
+            77, 39, 142, 127, 52, 97, 11, 185, 245, 80, 136, 214, 106, 241, 6, 208, 
+            239, 39, 81, 236, 204, 109]
+
+def rotr(val, bits, size=8):
+    bits = bits % size
+    return ((val >> bits) | (val << (size - bits))) & ((1 << size) - 1)
+
+flag_chars = []
+for i in range(38):
+    temp1 = rotr(expected[i], 3)
+    temp2 = temp1 ^ (i * 13)
+    temp3 = temp2 - i
+    flag_char = temp3 ^ 90
+    flag_chars.append(chr(flag_char & 0xFF))
+
+flag = ''.join(flag_chars)
+print(f"unictf{{{flag}}}")
+```
