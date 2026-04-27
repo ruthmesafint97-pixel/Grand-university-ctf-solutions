@@ -127,3 +127,74 @@ for ($i = 0; $i -lt $hex.Length; $i += 2) {
 }
 ```
 Flag: `unictf{x0r_w1th_0n3_byt3_1s_w34k}`
+
+### 📌 Key Takeaways from Crypto Challenges
+
+#### 1. C43SAR (Caesar Cipher)
+- **Caesar ciphers** are simple letter shifts — easy to break with ROT13 or brute force.
+- **Leet speak** (numbers replacing letters) is common in CTF flags — learn to recognize `0=o, 3=e, 4=a, 1=i/l, 5=s`.
+- Look for patterns — the `{...}` format usually means it's a flag.
+
+#### 2. 64ESAB (Base64)
+- **Base64 encoding** is not encryption — it's just a way to represent binary data as text.
+- If a string looks like random letters/numbers ending with `=` signs, it's likely Base64.
+- Sometimes data is **encoded multiple times** — keep decoding until you see a flag.
+- Challenge names often hint at the solution (64ESAB = BASE64 backwards).
+
+#### 3. One Byte (Single XOR)
+- **XOR with a single byte** is weak because there are only 256 possible keys.
+- Always **brute force** all keys cause it's fast and easy.
+- Look for readable text or flag formats (`unictf{`, `flag{`, etc.) in the output.
+- Hex strings are often ciphertext — convert to bytes first before XOR.
+
+
+### ⚙️ Reverse Engineering (2/2)
+
+![RE Solved](RE1.jpg)
+
+#### 8. KeyGen (300 pts)
+
+**Given:** A file named `keygen.zip` containing a Linux executable called `keygen`
+
+**What I did:**
+
+1. **Extracted the zip file** — inside was a file named `keygen` (no extension). When I tried to double-click it on Windows, it said "unsupported", so I knew it was a Linux executable.
+
+2. **Uploaded to Dogbolt** — I went to [dogbolt.org](https://dogbolt.org), an online decompiler that runs multiple decompilers at once. I uploaded the `keygen` binary there.
+
+3. **Looked at the Hex-Rays output** — Dogbolt showed me the decompiled C code from Hex-Rays (a powerful decompiler). This made the binary readable without needing to install Ghidra or IDA locally.
+
+4. **Analyzed the decompiled code** — Looking at the Hex-Rays output, I saw:
+   - The program takes one command-line argument (a 33-character key)
+   - It checks if the length is exactly 33 characters
+   - It validates each character using a custom algorithm
+   - A hardcoded array of 33 bytes was stored in the binary: `byte_100003F85`
+   - The string `"OPF!"` was used in the calculation
+
+5. **Understood the algorithm** — For each index `i` from 0 to 32:
+   - First, it computes: `v4 = (("OPF!"[i % 4] + i) XOR key[i])`
+   - Then it rotates `v4` left by 3 bits: `(v4 << 3) | (v4 >> 5)`
+   - This result must equal the hardcoded byte at position `i`
+
+6. **Reversed the algorithm** — To get the flag, I:
+   - Reversed the rotate left (did a rotate right by 3 bits)
+   - Then XORed with `("OPF!"[i % 4] + i)` to get each character of the key
+   - The key turned out to be the flag
+
+7. **Wrote a script** — I wrote a PowerShell script to reverse it automatically
+
+**PowerShell script I used:**
+```powershell
+$expected = @(209,249,9,58,57,153,185,210,35,121,120,10,67,16,177,32,233,192,56,32,104,178,24,170,186,216,154,27,248,226,72,155,144)
+$opf = @(79,80,70,33)
+$flag = ""
+for ($i = 0; $i -lt 33; $i++) {
+    # Reverse rotate left by 3 bits
+    $v4 = (($expected[$i] -shr 3) -bor (($expected[$i] -band 7) -shl 5)) -band 0xFF
+    # Reverse XOR
+    $char = $v4 -bxor ($opf[$i % 4] + $i)
+    $flag += [char]$char
+}
+Write-Host "unictf{$flag}"
+```
+Flag: `unictf{r3v_m3_b4by_0n3_m0r3_t1m3}` 
